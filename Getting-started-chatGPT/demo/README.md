@@ -1,3 +1,6 @@
+
+# 🚀 First Real Spring Boot Project
+
 We will build your first real Spring Boot project now.
 
 Very simple.
@@ -5,3 +8,4 @@ Very simple.
 No database.
 No complex theory.
 Just something that works.
+
