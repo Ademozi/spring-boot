@@ -1,350 +1,199 @@
-Here is your cleaned and well-structured **README.md** version, ready to paste into GitHub:
+# 📌 Authentication System – Spring Boot
+
+A professional Authentication REST API built with Spring Boot, MySQL, JPA, and BCrypt password encryption.
+
+This project demonstrates real-world backend architecture including:
+
+* Layered architecture (Controller → Service → Repository)
+* DTO pattern
+* Password encryption with BCrypt
+* Validation
+* Global exception handling
+* MySQL integration
+* RESTful API design
 
 ---
 
-# 🔐 Spring Boot Authentication Project
+# 🚀 Tech Stack
 
-This project is a simple authentication system built with **Spring Boot**, **JPA**, and **MySQL**.
-It supports:
-
-* ✅ User Registration
-* ✅ User Login
-* ✅ Database Integration
-* ✅ Clean Architecture using DTOs
+* Java 17+
+* Spring Boot
+* Spring Data JPA
+* Spring Security (BCrypt)
+* MySQL
+* Maven
+* Postman (for testing)
 
 ---
 
-# 🧠 Why `@Table(name = "users")`?
+# 📂 Project Structure
 
-```java
-@Table(name = "users")
 ```
-
-The word `user` is a reserved keyword in some databases.
-
-To avoid SQL conflicts, we rename the table to:
-
-```
-users
-```
-
----
-
-# 🧠 Why `@Column(unique = true)`?
-
-```java
-@Column(unique = true)
-private String email;
-```
-
-This ensures:
-
-* ❌ No duplicate emails
-* ✅ Database-level validation
-
----
-
-# 🧠 Why Multiple DTOs?
-
-We use multiple DTOs because:
-
-* Register and Login return different responses
-* We NEVER return the password
-* We control the API response format
-* This follows clean architecture principles
-
----
-
-# 📦 UserRepository Explained
-
-```java
-package com.example.demo.repository;
-
-import com.example.demo.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
-
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    Optional<User> findByEmail(String email);
-}
+src/main/java/com/example/auth
+│
+├── config          → Security configuration
+├── controller      → REST controllers
+├── dto             → Request & Response DTOs
+├── entity          → JPA entities
+├── exception       → Global exception handling
+├── repository      → Database layer
+├── service         → Business logic
 ```
 
 ---
 
-## 🔹 What is `JpaRepository<User, Long>`?
+# ⚙️ Setup Instructions
 
-```java
-extends JpaRepository<User, Long>
-```
-
-This means:
-
-* The repository works with the `User` entity
-* The ID type of `User` is `Long`
-
-From the entity:
-
-```java
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
-```
-
----
-
-## 🔹 What Does JpaRepository Give You For Free?
-
-By extending `JpaRepository`, you automatically get:
-
-```java
-save(user)
-findById(id)
-findAll()
-deleteById(id)
-existsById(id)
-count()
-```
-
-You write ZERO SQL.
-
-Example:
-
-```java
-repository.findById(1L);
-```
-
-Spring automatically generates:
-
-```sql
-SELECT * FROM users WHERE id = 1;
-```
-
----
-
-## 🔥 Derived Query Method
-
-```java
-Optional<User> findByEmail(String email);
-```
-
-Spring reads the method name and builds SQL automatically.
-
-```java
-findByEmail
-```
-
-Becomes:
-
-```sql
-SELECT * FROM users WHERE email = ?
-```
-
-No SQL written manually.
-
----
-
-## 🔹 Why `Optional<User>`?
-
-Because the user might NOT exist.
-
-Instead of returning `null`, Spring returns:
-
-```java
-Optional<User>
-```
-
-Usage in service:
-
-```java
-repository.findByEmail(email)
-        .orElseThrow(...)
-```
-
-If found → return user
-If not → throw exception
-
-This prevents `NullPointerException`.
-
----
-
-## 🔹 How Spring Knows the Column Name?
-
-From the entity field:
-
-```java
-@Column(unique = true)
-private String email;
-```
-
-Spring matches:
+## 1️⃣ Clone the repository
 
 ```
-findByEmail
+git clone <your-repo-url>
 ```
 
-With:
-
-```
-email
-```
-
-⚠️ The method name MUST match the entity field name exactly.
-
-If the field was:
-
-```java
-private String userEmail;
-```
-
-The method must be:
-
-```java
-findByUserEmail()
-```
-
----
-
-# 🧪 Testing With Postman
-
-Make sure your application is running.
-
----
-
-## 🔹 Register
-
-* Method: **POST**
-* URL:
-
-```
-http://localhost:8080/auth/register
-```
-
-* Body → raw → JSON
-
-```json
-{
-  "email": "ali@gmail.com",
-  "password": "1234"
-}
-```
-
-Click **Send**.
-
----
-
-## 🔹 Login
-
-* Method: **POST**
-* URL:
-
-```
-http://localhost:8080/auth/login
-```
-
-* Body → raw → JSON
-
-```json
-{
-  "email": "ali@gmail.com",
-  "password": "1234"
-}
-```
-
-Click **Send**.
-
----
-
-# 🗄️ Connect To MySQL Database
-
----
-
-## 🚀 Step 1 — Install MySQL
-
-Download:
-
-[https://dev.mysql.com/downloads/mysql/](https://dev.mysql.com/downloads/mysql/)
-
-During installation:
-
-* Remember your **root password**
-* Keep default port: `3306`
-
----
-
-## 🚀 Step 2 — Create Database
-
-Open MySQL Workbench or terminal and run:
+## 2️⃣ Create MySQL Database
 
 ```sql
 CREATE DATABASE auth_project;
 ```
 
-Database name:
+## 3️⃣ Configure application.properties
 
 ```
-auth_project
-```
-
----
-
-## 🚀 Step 3 — Add MySQL Dependency (Maven)
-
-Open `pom.xml` and add:
-
-```xml
-<dependency>
-    <groupId>com.mysql</groupId>
-    <artifactId>mysql-connector-j</artifactId>
-    <scope>runtime</scope>
-</dependency>
-```
-
-Make sure you already have:
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-```
-
-Reload Maven in IntelliJ.
-
----
-
-## 🚀 Step 4 — Configure `application.properties`
-
-Open:
-
-```
-src/main/resources/application.properties
-```
-
-Replace with:
-
-```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/auth_project
 spring.datasource.username=root
 spring.datasource.password=YOUR_PASSWORD
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
-
-server.port=8080
 ```
 
-⚠️ Replace `YOUR_PASSWORD` with your MySQL root password.
+Replace `YOUR_PASSWORD` with your MySQL password.
+
+## 4️⃣ Run the Application
+
+Run the main class from IntelliJ or:
+
+```
+mvn spring-boot:run
+```
+
+Server will start on:
+
+```
+http://localhost:8080
+```
 
 ---
 
-# ✅ What You Achieved
+# 🔐 API Endpoints
 
-* Connected Spring Boot to a real MySQL database
-* Used JPA without writing SQL
-* Created derived query methods
-* Built a clean authentication structure
-* Tested API using Postman
+## 🔹 Register User
 
+**POST** `/auth/register`
+
+### Request Body
+
+```json
+{
+  "email": "user@gmail.com",
+  "password": "1234"
+}
+```
+
+### Response
+
+```
+201 CREATED
+{
+  "message": "User registered successfully"
+}
+```
+
+---
+
+## 🔹 Login User
+
+**POST** `/auth/login`
+
+### Request Body
+
+```json
+{
+  "email": "user@gmail.com",
+  "password": "1234"
+}
+```
+
+### Response
+
+```
+200 OK
+{
+  "message": "Login successful"
+}
+```
+
+---
+
+# 🔒 Security Features
+
+* Passwords are encrypted using BCrypt.
+* Raw passwords are never stored in the database.
+* Validation using `@Email` and `@NotBlank`.
+* Global exception handling for clean error responses.
+
+Example encrypted password stored in DB:
+
+```
+$2a$10$XhDk39sdfkjsdfkjsdf...
+```
+
+---
+
+# ❗ Error Handling
+
+Example error response:
+
+```
+400 BAD REQUEST
+Invalid password
+```
+
+Handled globally using `@ControllerAdvice`.
+
+---
+
+# 🧪 Testing
+
+Use Postman to test endpoints:
+
+1. Register a user
+2. Login with the same credentials
+
+---
+
+# 🎯 What This Project Demonstrates
+
+* Clean architecture
+* Separation of concerns
+* DTO usage
+* Proper HTTP status codes
+* Secure password handling
+* Real database persistence
+
+---
+
+# 📌 Future Improvements
+
+* JWT authentication
+* Role-based authorization (USER / ADMIN)
+* Refresh tokens
+* Docker support
+* Deployment to cloud
+
+---
+
+# 👨‍💻 Author
+
+Built as part of backend learning journey using Spring Boot.
 
